@@ -43,6 +43,10 @@ class IRCDProtocol:
 	def sendMsg(self, user, destination, message):
 		self.client.transport.write(':%s PRIVMSG %s :%s\r\n' % (user, destination, message))
 
+	### Sends channel kick message ###
+	def sendKick(self, kickuser, channel, user, reason):
+		self.client.transport.write(':%s KICK %s %s :%s\r\n' % (kickuser, channel, user, reason))
+
 	### Handles PRIVMSG commands ###
 	def irc_PRIVMSG(self, cmd):
 		dest = cmd[2]

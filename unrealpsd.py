@@ -2,6 +2,7 @@ from twisted.internet import protocol, reactor
 from modules.core.logger import Logger
 from modules.core.config import Config
 from pseudoircprotocol import PseudoIRCProtocol
+import copy
 
 log = Logger()
 conf = Config()
@@ -27,13 +28,13 @@ class PseudoIRCFactory(protocol.ClientFactory):
 	
 	def clientConnectionLost(self, connector, reason):
 		log.output('Connection lost, reconnecting.')
-		self.reloadmods = self.protocol.modhandler.modules
+		self.reloadmods = copy.copy(self.protocol.modhandler.modules)
 
-		for module in self.protocol.modhandler.modules:
+		for module in self.protocol.modhandler.modules.keys():
 			self.protocol.modhandler.unloadModule(module)
-		
+				
 		connector.connect()
-        
+
 		for module in self.reloadmods:
 			self.protocol.modhandler.loadModule(module)
 

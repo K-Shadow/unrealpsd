@@ -17,7 +17,7 @@ class PseudoIRCProtocol(protocol.Protocol):
 			
 			try:
 				if cmd[0] == 'PING':
-					self.proto.irc_PING(cmd)	
+					self.proto.irc_PING(cmd)
 
 				if cmd[1] == "PRIVMSG":
 					cmd = l.split(' ', 4)

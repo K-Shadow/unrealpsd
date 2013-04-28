@@ -21,8 +21,7 @@ class ModuleHandler:
 			modinstance = getattr(mod, 'UPSDModule_' + module) (self.client.proto, self.client)
 
 		except Exception, err:
-			self.log.output('Error loading %s module.' % (module))
-			print err
+			self.log.output('Error loading %s module: %s' % (module, err))
 			return False
 
 		self.modules[module] = modinstance
@@ -39,8 +38,7 @@ class ModuleHandler:
 			return True
 
 		except Exception, err:
-			self.log.output('Error starting %s module.' % (module))
-			print err
+			self.log.output('Error starting %s module: %s' % (module, err))
 			self.unloadModule(module)
 
 	def unloadModule(self, module):
@@ -62,8 +60,8 @@ class ModuleHandler:
 			sys.modules.pop("modules.upsdm_" + module)
 			self.log.output('Module %s has been unloaded.' % (module))
 
-		except:
-			self.log.output('Error shutting down and unloading module %s.' % (module))
+		except Exception, err:
+			self.log.output('Error shutting down and unloading module %s: %s' % (module, err))
 			return False
 
 		del self.modules[module]

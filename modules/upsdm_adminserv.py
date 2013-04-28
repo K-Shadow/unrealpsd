@@ -1,5 +1,6 @@
 from upsdmodule import *
 from core.config import Config
+from twisted.internet import reactor
 import string
 
 class UPSDModule_adminserv(UPSDModule):
