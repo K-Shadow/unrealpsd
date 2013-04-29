@@ -89,4 +89,4 @@ class ModuleHandler:
 			try:
 				func(prefix, command, params)
 			except:
-				return
+				pass
