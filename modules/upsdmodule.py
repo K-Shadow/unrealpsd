@@ -1,3 +1,5 @@
+from core.userperm import UserPerm
+
 class UPSDModule(object):
 
 	def __init__(self, proto, main):
@@ -5,6 +7,7 @@ class UPSDModule(object):
 		self.main = main
 		self.log = self.main.log
 		self.config = self.main.config
+		self.perm = UserPerm(self.main)
 		self.modstarted = False
 
 	def start(self):

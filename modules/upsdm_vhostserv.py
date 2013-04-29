@@ -1,9 +1,9 @@
 from upsdmodule import *
 from core.config import Config
 
-class UPSDModule_testserv(UPSDModule):
+class UPSDModule_vhostserv(UPSDModule):
 
-	modname = 'testserv'
+	modname = 'vhostserv'
 
 	def start(self):
 		if not UPSDModule.start(self):
@@ -29,13 +29,13 @@ class UPSDModule_testserv(UPSDModule):
 		UPSDModule.stop(self)
 		self.proto.sendUserQuit(self.userconf['nick'])
 
-	def testserv_ctcp(self, user, command, params):
+	def vhostserv_ctcp(self, user, command, params):
 		if command.lower() == "\x01version\x01":
 			self.proto.sendNotice(self.userconf['nick'], user, '\x01VERSION %s\x01' % (self.getVersion()))
 
 		return True
 
-	def testserv_channel(self, user, command, params):
+	def vhostserv_channel(self, user, command, params):
 		nick = params[0].split(':')[1]
 
 		if (len(params) > 4):
@@ -43,12 +43,16 @@ class UPSDModule_testserv(UPSDModule):
 		else:
 			args = None
 
-		if (command == ".kick"):
-			self.proto.sendKick(self.userconf['nick'], user, args[0], args[1])
+		if (command == ".request"):
+			if (args == None) or (args[0] == ''):
+				self.proto.sendMsg(self.userconf['nick'], user, 'No vHost was specified.')
+			else:
+				self.proto.chgUserHost(self.userconf['nick'], nick, args[0])
+				self.proto.sendMsg(self.userconf['nick'], user, 'vHost for %s has been set.' % (nick))
 
 	def getModHooks(self):
-		return (('privmsg', self.testserv_ctcp),
-				('privmsg', self.testserv_channel))
+		return (('privmsg', self.vhostserv_ctcp),
+				('privmsg', self.vhostserv_channel))
 
 	def getVersion(self):
-		return 'UnrealPSD TestServ Module'
+		return 'UnrealPSD vHostServ Module'

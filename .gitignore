@@ -34,3 +34,5 @@ nosetests.xml
 .project
 .pydevproject
 unrealpsd.conf
+personalunrealpsd.conf
+personalunrealpsd_2.conf

@@ -6,6 +6,7 @@ import string
 class UPSDModule_adminserv(UPSDModule):
 
 	modname = 'adminserv'
+	modperm = 'master'
 
 	def start(self):
 		if not UPSDModule.start(self):
@@ -20,10 +21,10 @@ class UPSDModule_adminserv(UPSDModule):
 		self.userconf['host'] = self.conf.getOption(self.modname, 'host')
 		self.userconf['modes'] = self.conf.getOption(self.modname, 'modes')
 		self.userconf['realname'] = self.conf.getOption(self.modname, 'realname')
-		self.userconf['admin'] = self.conf.getOption(self.modname, 'admin')
+		self.userconf['mainchan'] = self.conf.getOption(self.modname, 'mainchan')
 
 		self.proto.sendNickCreate(self.userconf['nick'], self.userconf['ident'], self.userconf['host'], self.userconf['modes'], self.userconf['realname'])
-		self.proto.sendJoin(self.userconf['nick'], '#services')
+		self.proto.sendJoin(self.userconf['nick'], self.userconf['mainchan'])
 
 		return True
 
@@ -32,7 +33,7 @@ class UPSDModule_adminserv(UPSDModule):
 		self.proto.sendUserQuit(self.userconf['nick'])
 
 	def loadMod(self, destination, params):
-		if (destination == self.userconf['admin']):
+		if (self.perm.checkPerm(destination, self.modperm)):
 			if self.main.modhandler.loadModule(params[0]):
 				self.proto.sendNotice(self.userconf['nick'], destination, 'Loaded module %s!' % (params[0]))
 
@@ -42,7 +43,7 @@ class UPSDModule_adminserv(UPSDModule):
 		return True
 
 	def unloadMod(self, destination, params):
-		if (destination == self.userconf['admin']) & (params[0] != self.modname):
+		if (self.perm.checkPerm(destination, self.modperm)) & (params[0] != self.modname):
 			if self.main.modhandler.unloadModule(params[0]):
 				self.proto.sendNotice(self.userconf['nick'], destination, 'Unloaded module %s!' % (params[0]))
 
@@ -55,7 +56,7 @@ class UPSDModule_adminserv(UPSDModule):
 		return True
 
 	def reload(self, destination, params=None):
-		if (destination == self.userconf['admin']):
+		if (self.perm.checkPerm(destination, self.modperm)):
 			self.proto.sendNotice(self.userconf['nick'], destination, 'Reloading %s module!' % (self.modname))
 			self.main.modhandler.reloadModule(self.modname)
 
@@ -66,7 +67,7 @@ class UPSDModule_adminserv(UPSDModule):
 		return True
 
 	def sendHelp(self, destination, params=None):
-		if (destination == self.userconf['admin']):
+		if (self.perm.checkPerm(destination, self.modperm)):
 			self.proto.sendNotice(self.userconf['nick'], destination, '\x02AdminServ Commands\x02:')
 			self.proto.sendNotice(self.userconf['nick'], destination, '\x02LOADMOD <module>\x02 - Loads the specified module.')
 			self.proto.sendNotice(self.userconf['nick'], destination, '\x02UNLOADMOD <module>\x02 - Unloads the specified module.')
@@ -79,7 +80,7 @@ class UPSDModule_adminserv(UPSDModule):
 		return True
 
 	def adminserv_ctcp(self, user, command, params):
-		if command == "\x01VERSION\x01":
+		if command.lower() == "\x01version\x01":
 			self.proto.sendNotice(self.userconf['nick'], user, '\x01VERSION %s\x01' % (self.getVersion()))
 
 		return True
@@ -92,12 +93,12 @@ class UPSDModule_adminserv(UPSDModule):
 		nick = params[0].split(':')[1]
 
 		if (command == '.help'):
-			if (nick == self.userconf['admin']):
+			if (self.perm.checkPerm(nick, self.modperm)):
 				self.proto.sendMsg(self.userconf['nick'], user, 'Okay I\'ll help you ' + nick + '.')
 				self.sendHelp(nick)
 
 		elif (command == '.reload'):
-			if (nick == self.userconf['admin']):
+			if (self.perm.checkPerm(nick, self.modperm)):
 				self.proto.sendMsg(self.userconf['nick'], user, 'Okay, I\'ll only reload because I love you ' + nick + ".")
 				self.reload(nick)
 

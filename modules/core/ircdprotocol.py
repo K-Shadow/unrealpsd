@@ -47,6 +47,10 @@ class IRCDProtocol:
 	def sendKick(self, kickuser, channel, user, reason):
 		self.client.transport.write(':%s KICK %s %s :%s\r\n' % (kickuser, channel, user, reason))
 
+	### Changes a user's host ###
+	def chgUserHost(self, user, targetuser, host):
+		self.client.transport.write(':%s CHGHOST %s %s\r\n' % (user, targetuser, host))
+
 	### Handles PRIVMSG commands ###
 	def irc_PRIVMSG(self, cmd):
 		dest = cmd[2]
@@ -59,7 +63,7 @@ class IRCDProtocol:
 
 		### Handles PRIVMSGs that aren't in channels or CTCP requests ###
 		if dest.startswith('#') != True and command.startswith('\x01') != True:
-			command = cmd[2] + '.' + command
+			command = cmd[2].lower() + '.' + command.lower()
 			dest = cmd[0].split(':')[1]
 
 			if (command in self.client.modhandler.cmds):
@@ -85,3 +89,5 @@ class IRCDProtocol:
 	### Handles PING commands ###
 	def irc_PING(self, cmd):
 		self.sendPong(cmd[1])
+
+
